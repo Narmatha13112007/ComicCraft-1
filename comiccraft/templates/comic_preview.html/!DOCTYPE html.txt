@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComicCraft - Preview Canvas</title>
+    <!-- Tailwind CSS for clean, rapid layout styling -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { background-color: #121214; color: #f3f4f6; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-400 hover:text-white transition">&larr; Back to Dashboard</a>
+            <span class="text-gray-600">|</span>
+            <h1 class="text-xl font-bold tracking-wider text-indigo-400">Preview Canvas 🎨</h1>
+        </div>
+        <span class="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">Project Workspace</span>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-8">
+        
+        <!-- Header & Action Panel Controls -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+            <div>
+                <!-- Mock dynamic text replacement hooks for Flask or JS templating architectures -->
+                <h2 id="comicTitle" class="text-2xl font-bold text-white mb-1">Your Generated Story Arc</h2>
+                <p id="comicGenre" class="text-sm text-indigo-400 font-medium tracking-wide uppercase">Sci-Fi Adventure</p>
+            </div>
+            
+            <!-- Export Options Trigger Elements -->
+            <form action="/export" method="POST" class="flex items-center gap-3">
+                <button type="submit" name="format" value="pdf"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-md shadow-indigo-600/10 active:scale-[0.98]">
+                    Download Complete PDF
+                </button>
+                <button type="submit" name="format" value="zip"
+                    class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 font-semibold text-sm px-5 py-2.5 rounded-xl transition active:scale-[0.98]">
+                    Export Panel ZIP Bundle
+                </button>
+            </form>
+        </div>
+
+        <!-- Render Target Grid Container (Simulating a standard 2-column comic layout page matrix) -->
+        <div id="comicGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Panel Item Card Component 1 -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden flex flex-col group shadow-lg">
+                <div class="aspect-square bg-gray-950 flex items-center justify-center relative overflow-hidden border-b border-gray-800">
+                    <!-- Target image source relative hook mapped into application static folder structure -->
+                    <img src="/static/panels/panel_1.png" alt="Panel 1" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-300">
+                    <span class="absolute top-4 left-4 bg-gray-900/90 text-indigo-400 font-bold border border-gray-700 w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">1</span>
+                </div>
+                <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <p class="text-gray-400 text-xs italic line-clamp-2">Prompt: Cinematic wide angle, futuristic neon cityscape background...</p>
+                    <div class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 font-medium">
+                        "The transmission didn't originate from Earth. It's coming from inside the rings."
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Item Card Component 2 -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden flex flex-col group shadow-lg">
+                <div class="aspect-square bg-gray-950 flex items-center justify-center relative overflow-hidden border-b border-gray-800">
+                    <img src="/static/panels/panel_2.png" alt="Panel 2" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-300">
+                    <span class="absolute top-4 left-4 bg-gray-900/90 text-indigo-400 font-bold border border-gray-700 w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">2</span>
+                </div>
+                <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <p class="text-gray-400 text-xs italic line-clamp-2">Prompt: Close up tracking shot tracking expression profile structural details...</p>
+                    <div class="bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 font-medium">
+                        "Lock down coordinates. We're launching immediately."
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

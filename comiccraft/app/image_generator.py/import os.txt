@@ -1,0 +1,71 @@
+import os
+import base64
+from io import BytesIO
+from PIL import Image
+from google import genai
+from google.genai import types
+
+class ComicImageGenerator:
+    def _init_(self):
+        # Initializes the client using the GEMINI_API_KEY environment variable
+        self.client = genai.Client()
+        # Using the standard modern multimodal image generation model
+        self.model_name = "gemini-2.5-flash-image"
+
+    def generate_panel_image(self, prompt: str, aspect_ratio: str = "1:1") -> Image.Image:
+        """
+        Generates a comic book panel artwork based on a textual scene description.
+        
+        Args:
+            prompt (str): Detailed text describing the visual components of the panel.
+            aspect_ratio (str): Target layout layout format (e.g., "1:1", "4:3", "16:9").
+            
+        Returns:
+            PIL.Image.Image: The generated image object.
+        """
+        # Append stylistic consistency guidelines to the raw panel description
+        comic_style_prompt = (
+            f"{prompt}, high-quality comic book illustration art, distinct lines, "
+            f"vibrant colors, uniform storytelling aesthetic"
+        )
+        
+        try:
+            # Generate the content instructing the model to yield an image modality
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=comic_style_prompt,
+                config=types.GenerateContentConfig(
+                    response_modalities=["IMAGE"],
+                    image_config=types.ImageConfig(
+                        aspect_ratio=aspect_ratio,
+                    ),
+                ),
+            )
+            
+            # Extract the raw binary image data out from the response parts array
+            for part in response.parts:
+                if part.inline_data:
+                    # Convert the inline bytes into a manipulable PIL Image object
+                    image_data = part.inline_data.data
+                    return Image.open(BytesIO(image_data))
+                    
+            raise ValueError("No image payload found in the model response.")
+            
+        except Exception as e:
+            print(f"Error during panel image generation: {e}")
+            raise e
+
+    def save_panel_to_disk(self, prompt: str, output_path: str, aspect_ratio: str = "1:1") -> bool:
+        """
+        Helper method to generate a panel image and automatically save it 
+        to the project's static file structure.
+        """
+        try:
+            pil_img = self.generate_panel_image(prompt, aspect_ratio)
+            pil_img.save(output_path, "PNG")
+            return True
+        except Exception:
+            return False
+
+# Quick instantiation block for importing across endpoints
+image_generator = ComicImageGenerator()

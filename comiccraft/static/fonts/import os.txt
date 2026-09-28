@@ -1,0 +1,55 @@
+import os
+from PIL import Image, ImageDraw, ImageFont
+
+class ComicLayoutBuilder:
+    def _init_(self, page_width: int = 1200, page_height: int = 1600):
+        self.page_width = page_width
+        self.page_height = page_height
+        self.background_color = "white"
+
+    def compile_grid_page(self, panel_paths: list[str], output_path: str, columns: int = 2) -> bool:
+        # ... (Previous grid compiling logic stays the same)
+        return True
+
+    def overlay_caption(self, base_image_path: str, text: str, output_path: str):
+        """
+        Loads a custom font from static/fonts/ and draws a dialogue/caption block 
+        directly onto a panel before it gets compiled into the final PDF.
+        """
+        try:
+            with Image.open(base_image_path) as img:
+                draw = ImageDraw.Draw(img)
+                
+                # 1. Resolve path to your custom font asset file
+                # Change "ComicNeue-Bold.ttf" to whatever font file you put in your directory
+                font_path = os.path.join("static", "fonts", "ComicNeue-Bold.ttf")
+                
+                # Fallback to default system font if the custom .ttf isn't downloaded yet
+                if os.path.exists(font_path):
+                    font = ImageFont.truetype(font_path, size=24) [1]
+                else:
+                    font = ImageFont.load_default()
+
+                # 2. Configure text position metrics (e.g., bottom banner position)
+                text_x = 25
+                text_y = img.height - 60
+
+                # 3. Draw a semi-transparent dark background strip for high contrast readability
+                draw.rectangle(
+                    [15, img.height - 75, img.width - 15, img.height - 15], 
+                    fill=(0, 0, 0, 180)
+                )
+
+                # 4. Render the string onto the target canvas space
+                draw.text((text_x, text_y), text, fill="white", font=font) [1]
+                
+                # Save the stamped image over the old one or to a unique path
+                img.save(output_path, "PNG")
+                return True
+                
+        except Exception as e:
+            print(f"Failed to overlay text styling with font: {e}")
+            return False
+
+# Quick instantiation block for cross-module integration
+layout_builder = ComicLayoutBuilder()

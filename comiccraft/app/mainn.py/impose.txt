@@ -1,0 +1,30 @@
+import os
+from flask import Flask
+
+def create_app():
+    # Initialize the Flask application
+    app = Flask(
+        _name_, 
+        template_folder='../templates', 
+        static_folder='../static'
+    )
+    
+    # Configure application secrets and paths
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_secret_key_comiccraft_123')
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'panels')
+    app.config['EXPORT_FOLDER'] = os.path.join(app.static_folder, 'exports')
+
+    # Ensure required static directories exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['EXPORT_FOLDER'], exist_ok=True)
+
+    # Register blueprints from your routes file
+    from app.routes import bp as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    return app
+
+if _name_ == '_main_':
+    app = create_app()
+    # Run the application locally in debug mode
+    app.run(host='0.0.0.0', port=5000, debug=True)

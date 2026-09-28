@@ -1,0 +1,13 @@
+# Web Framework & Server Environments
+Flask==3.1.0
+Werkzeug==3.1.3
+
+# Core AI Operations & Structured Schemas
+google-genai==0.1.1
+pydantic==2.10.6
+
+# Image Compositing, Rendering, & Vector Operations
+Pillow==11.1.0
+
+# Local Environment Configuration Injection
+python-dotenv==1.0.1

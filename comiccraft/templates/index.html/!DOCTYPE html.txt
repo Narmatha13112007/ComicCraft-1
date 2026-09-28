@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComicCraft - AI Comic Creator</title>
+    <!-- Tailwind CSS for clean, rapid layout styling -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { background-color: #121214; color: #f3f4f6; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold tracking-wider text-indigo-400">ComicCraft 🎨</h1>
+        <span class="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">Powered by Gemini</span>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-6 md:p-12 flex flex-col justify-center">
+        
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-white mb-2">Create Your Comic Story</h2>
+            <p class="text-gray-400">Turn any creative premise or narrative arc into structured, illustrated story panels.</p>
+        </div>
+
+        <!-- Generation Control Form -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl space-y-6">
+            
+            <!-- Text Premise Input Area -->
+            <div>
+                <label for="prompt" class="block text-sm font-medium text-gray-300 mb-2">Story Premise / Idea</label>
+                <textarea id="prompt" rows="4" 
+                    class="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
+                    placeholder="Example: A detective discovers that the city's clocktower is actually a dormant time machine..."></textarea>
+            </div>
+
+            <!-- Configuration Parameters Row -->
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="w-full sm:w-auto flex items-center gap-3">
+                    <label for="panels" class="text-sm font-medium text-gray-300 whitespace-nowrap">Panel Count:</label>
+                    <select id="panels" class="bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        <option value="3">3 Panels</option>
+                        <option value="4" selected>4 Panels</option>
+                        <option value="6">6 Panels</option>
+                        <option value="8">8 Panels</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button Trigger -->
+                <button id="generateBtn" onclick="generateComic()" 
+                    class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-indigo-600/20 active:scale-[0.98]">
+                    Generate Script
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Live Loading Status Block -->
+        <div id="statusBlock" class="hidden mt-8 text-center p-6 border border-dashed border-gray-800 rounded-2xl bg-gray-900/20">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-indigo-500 rounded-full mb-3" role="status"></div>
+            <p id="statusText" class="text-gray-400 text-sm">Brainstorming story components with Gemini...</p>
+        </div>
+
+    </main>
+
+    <!-- Client-side JavaScript Orchestration Layer -->
+    <script>
+        async function generateComic() {
+            const promptInput = document.getElementById('prompt').value.trim();
+            const panelSelect = document.getElementById('panels').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const statusBlock = document.getElementById('statusBlock');
+
+            if (!promptInput) {
+                alert('Please enter a story premise first!');
+                return;
+            }
+
+            // Lock UI controls down during generation lifecycle
+            generateBtn.disabled = true;
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            statusBlock.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/generate-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        prompt: promptInput,
+                        panel_count: parseInt(panelSelect)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate script layout.');
+                }
+
+                const data = await response.json();
+                console.log('Story Script Generated:', data);
+                
+                // Transition user over to the visual canvas rendering layout dashboard 
+                window.location.href = '/preview';
+
+            } catch (error) {
+                alert('Error crafting script: ' + error.message);
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                statusBlock.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

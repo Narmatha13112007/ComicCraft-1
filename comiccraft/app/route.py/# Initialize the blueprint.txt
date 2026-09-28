@@ -1,0 +1,45 @@
+# Initialize the blueprint
+bp = Blueprint('main', _name_)
+
+@bp.route('/')
+def index():
+    """Renders the main dashboard for creating comic stories."""
+    return render_template('index.html')
+
+@bp.route('/generate-story', methods=['POST'])
+def generate_story():
+    """Handles prompt submission and calls Gemini to generate the script/panels."""
+    data = request.get_json() or {}
+    user_prompt = data.get('prompt')
+    
+    if not user_prompt:
+        return jsonify({'error': 'Prompt is required'}), 400
+
+    # TODO: Integrate with app.gemini_flash or app.gemini_pro here
+    dummy_story = {
+        "title": "A Modern Adventure",
+        "panels": [
+            {"number": 1, "text": "Panel 1 text..."},
+            {"number": 2, "text": "Panel 2 text..."}
+        ]
+    }
+    return jsonify(dummy_story)
+
+@bp.route('/preview')
+def comic_preview():
+    """Renders the full comic storyboard preview screen."""
+    # In production, fetch current comic status from a database or session
+    return render_template('comic_preview.html')
+
+@bp.route('/export', methods=['POST'])
+def export_comic():
+    """Triggers the image and layout exporters to save the final product."""
+    # TODO: Integrate with app.layout_builder and app.exporters here
+    
+    # Redirect or signal a successful export
+    return redirect(url_for('main.export_success'))
+
+@bp.route('/success')
+def export_success():
+    """Renders the success screen once the comic is compiled and downloaded."""
+    return render_template('export_success.html'

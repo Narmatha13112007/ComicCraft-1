@@ -1,0 +1,16 @@
+# 1. Create a clean python virtual environment isolation boundary
+python -m venv venv
+
+# 2. Activate the virtual environment
+# On macOS / Linux:
+source venv/bin/activate
+# On Windows (Command Prompt):
+# venv\Scripts\activate.bat
+# On Windows (PowerShell):
+# venv\Scripts\Activate.ps1
+
+# 3. Upgrade your package installer core binaries
+pip install --upgrade pip
+
+# 4. Batch-install your complete project dependencies manifest matrix
+pip install -r requirements.txt

@@ -1,0 +1,73 @@
+import os
+import zipfile
+from PIL import Image
+
+class ComicExporter:
+    @staticmethod
+    def export_to_pdf(page_paths: list[str], output_pdf_path: str) -> bool:
+        """
+        Compiles a list of full-page layout image sheets into a single, multi-page PDF document.
+        
+        Args:
+            page_paths (list): Ordered file paths to the compiled grid images.
+            output_pdf_path (str): Destination file path for the generated PDF.
+        """
+        if not page_paths:
+            return False
+
+        try:
+            valid_images = []
+            for path in page_paths:
+                if os.path.exists(path):
+                    # Open the sheet image and ensure it's in a standardized RGB space for PDF compliance
+                    img = Image.open(path).convert('RGB')
+                    valid_images.append(img)
+
+            if not valid_images:
+                return False
+
+            # Extract the first image to initialize the document sequence
+            primary_page = valid_images[0]
+            subsequent_pages = valid_images[1:]
+
+            # Save the primary asset while appending the remaining sheets as continuous pages
+            primary_page.save(
+                output_pdf_path,
+                "PDF",
+                resolution=100.0,
+                save_all=True,
+                append_images=subsequent_pages
+            )
+            return True
+
+        except Exception as e:
+            print(f"Error compiling output PDF portfolio: {e}")
+            return False
+
+    @staticmethod
+    def export_to_zip(file_paths: list[str], output_zip_path: str) -> bool:
+        """
+        Gathers raw panels or loose layout pages and compresses them into a single downloadable ZIP archive.
+        
+        Args:
+            file_paths (list): File paths of assets to include.
+            output_zip_path (str): Destination file path for the target ZIP file.
+        """
+        if not file_paths:
+            return False
+
+        try:
+            with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for path in file_paths:
+                    if os.path.exists(path):
+                        # Extract the base file name to avoid archiving your local folder hierarchy trees
+                        archive_name = os.path.basename(path)
+                        zip_file.write(path, arcname=archive_name)
+            return True
+
+        except Exception as e:
+            print(f"Error compressing asset bundle to ZIP: {e}")
+            return False
+
+# Quick instantiation block for cross-module integration
+exporters = ComicExporter()

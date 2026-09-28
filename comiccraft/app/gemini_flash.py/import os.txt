@@ -1,0 +1,56 @@
+import os
+import json
+from google import genai
+from google.genai import types
+from pydantic import BaseModel, Field
+
+# Define the expected JSON output structure using Pydantic
+class Panel(BaseModel):
+    panel_number: int = Field(description="The sequential number of the comic panel.")
+    visual_description: str = Field(description="Detailed visual prompt description for the image generator.")
+    dialogue: str = Field(description="The text, speech, or narration accompanying this panel.")
+
+class ComicStory(BaseModel):
+    title: str = Field(description="The catchy title of the comic story.")
+    genre: str = Field(description="The genre of the story (e.g., Sci-Fi, Fantasy, Comedy).")
+    panels: list[Panel] = Field(description="The list of individual panels comprising the comic layout.")
+
+class GeminiFlashClient:
+    def _init_(self):
+        # Initializes the client using the GEMINI_API_KEY environment variable
+        self.client = genai.Client()
+        self.model_name = "gemini-2.5-flash"
+
+    def generate_comic_script(self, user_prompt: str, panel_count: int = 4) -> dict:
+        """
+        Generates a structured comic book script based on a user text prompt.
+        """
+        system_instruction = (
+            f"You are an expert comic book writer. Generate a complete story breakdown divided into exactly "
+            f"{panel_count} panels based on the user's premise. The visual descriptions must be highly descriptive "
+            f"so an AI image generator can easily create consistent scenes from them."
+        )
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=f"Create a comic story about: {user_prompt}",
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    # Force the model to output valid JSON matching our Pydantic schema
+                    response_mime_type="application/json",
+                    response_schema=ComicStory,
+                    temperature=0.7,
+                ),
+            )
+            
+            # The response.text is guaranteed to be a JSON string matching ComicStory
+            return json.loads(response.text)
+
+        except Exception as e:
+            # Fallback or proper error logging structure for your Flask app
+            print(f"Error communicating with Gemini API: {e}")
+            return {"error": str(e)}
+
+# Quick instantiation block for local verification/importing
+gemini_flash = GeminiFlashClient()

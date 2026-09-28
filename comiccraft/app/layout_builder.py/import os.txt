@@ -1,0 +1,83 @@
+import os
+from PIL import Image, ImageDraw, ImageFont
+
+class ComicLayoutBuilder:
+    def _init_(self, page_width: int = 1200, page_height: int = 1600):
+        """
+        Initializes the standard page layout template dimensions.
+        Default is roughly a standard portrait comic page ratio.
+        """
+        self.page_width = page_width
+        self.page_height = page_height
+        self.background_color = "white"
+
+    def compile_grid_page(self, panel_paths: list[str], output_path: str, columns: int = 2) -> bool:
+        """
+        Arranges a flat list of panel image file paths into a standard grid layout.
+        
+        Args:
+            panel_paths (list): File paths to the saved panel PNGs.
+            output_path (str): Destination path to save the final compiled page sheet.
+            columns (int): Number of panels per horizontal row.
+        """
+        if not panel_paths:
+            return False
+
+        # Create a blank high-resolution canvas sheet
+        canvas = Image.new("RGB", (self.page_width, self.page_height), self.background_color)
+        draw = ImageDraw.Draw(canvas)
+
+        # Calculate grid metrics and padding spacing dynamically
+        padding = 30
+        num_panels = len(panel_paths)
+        rows = (num_panels + columns - 1) // columns
+
+        available_width = self.page_width - (padding * (columns + 1))
+        available_height = self.page_height - (padding * (rows + 1))
+
+        panel_w = available_width // columns
+        panel_h = available_height // rows
+
+        try:
+            for idx, img_path in enumerate(panel_paths):
+                if not os.path.exists(img_path):
+                    continue
+
+                # Open and resize individual panel visuals uniformly to fit layout borders
+                with Image.open(img_path) as panel_img:
+                    resized_panel = panel_img.resize((panel_w, panel_h), Image.Resampling.LANCZOS)
+                    
+                    # Compute matrix coordinates
+                    col_idx = idx % columns
+                    row_idx = idx // columns
+                    
+                    x_pos = padding + col_idx * (panel_w + padding)
+                    y_pos = padding + row_idx * (panel_h + padding)
+                    
+                    # Paste the visual panel into place on the base asset sheet
+                    canvas.paste(resized_panel, (x_pos, y_pos))
+                    
+                    # Optional: Draw a thin black frame border around the panel slot
+                    draw.rectangle(
+                        [x_pos, y_pos, x_pos + panel_w, y_pos + panel_h], 
+                        outline="black", 
+                        width=4
+                    )
+
+            # Commit the layout canvas to disk file system storage
+            canvas.save(output_path, "PNG")
+            return True
+
+        except Exception as e:
+            print(f"Error compiling panel layout: {e}")
+            return False
+
+    def overlay_caption(self, base_image_path: str, text: str, panel_coord: tuple[int, int, int, int]):
+        """
+        Optional helper method to inject narration caption blocks over layout bounds.
+        """
+        # TODO: Implement text rendering blocks using ImageFont.truetype() here if desired
+        pass
+
+# Quick instantiation block for cross-module integration
+layout_builder = ComicLayoutBuilder()

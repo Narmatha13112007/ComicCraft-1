@@ -1,0 +1,55 @@
+import os
+from google import genai
+from google.genai import types
+
+class GeminiProClient:
+    def _init_(self):
+        # Initializes the client using the GEMINI_API_KEY environment variable
+        self.client = genai.Client()
+        self.model_name = "gemini-2.5-pro"
+
+    def start_brainstorm_session(self, initial_premise: str) -> genai.chats.Chat:
+        """
+        Starts a continuous chat session to brainstorm and refine a comic story arc.
+        """
+        system_instruction = (
+            "You are a master creative director and comic book script doctor. "
+            "Help the user flesh out their initial premises into deep characters, "
+            "compelling story arcs, and thematic depths. Provide constructive feedback, "
+            "ask thought-provoking questions, and suggest narrative twists."
+        )
+
+        chat = self.client.chats.create(
+            model=self.model_name,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.8,
+            )
+        )
+        
+        # Send the initial premise to kickstart the conversation
+        chat.send_message(f"Here is my comic book idea: {initial_premise}")
+        return chat
+
+    def analyze_pacing(self, full_script: str) -> str:
+        """
+        Performs a deep review of a completed script to check pacing and page turns.
+        """
+        prompt = (
+            f"Review the following comic script details. Analyze the narrative pacing, "
+            f"dialogue weight, and action breakdowns. Provide specific advice on how "
+            f"to improve emotional impact:\n\n{full_script}"
+        )
+        
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+            )
+            return response.text
+        except Exception as e:
+            print(f"Error communicating with Gemini Pro API: {e}")
+            return f"Error: {str(e)}"
+
+# Quick instantiation block for importing
+gemini_pro = GeminiProClient()
